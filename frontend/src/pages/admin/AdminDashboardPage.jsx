@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getTracks, addTrack, deleteTrack, getAllStudentsPerformance } from '../../services/adminService';
-import { LogOut, Plus, Trash2, Layers, Users, Activity, Loader2, ChevronRight } from 'lucide-react';
+import { LogOut, Plus, Trash2, Layers, Users, Activity, Loader2, ChevronRight, BookOpen, Mic } from 'lucide-react';
 import TechWingLoader from '../../components/TechWingLoader';
 import Swal from 'sweetalert2';
+import ExamAdminPanel from './ExamAdminPanel';
 
 const AdminDashboardPage = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [activeSection, setActiveSection] = useState('interviews');
     const [tracks, setTracks] = useState([]);
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -117,7 +119,7 @@ const AdminDashboardPage = () => {
 
     return (
         <div className="min-h-screen bg-techwing-dark p-6">
-            <header className="max-w-6xl mx-auto flex justify-between items-center mb-10">
+            <header className="max-w-6xl mx-auto flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-techwing-gold to-techwing-orange bg-clip-text text-transparent">
                         Admin Dashboard
@@ -129,6 +131,41 @@ const AdminDashboardPage = () => {
                 </button>
             </header>
 
+            {/* Section Tab Toggle */}
+            <div className="max-w-6xl mx-auto mb-8">
+                <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1.5 w-fit">
+                    <button
+                        onClick={() => setActiveSection('interviews')}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                            activeSection === 'interviews'
+                                ? 'bg-gradient-to-r from-techwing-gold to-techwing-orange text-black shadow-lg'
+                                : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        <Mic className="w-4 h-4" /> Interviews
+                    </button>
+                    <button
+                        onClick={() => setActiveSection('exams')}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                            activeSection === 'exams'
+                                ? 'bg-gradient-to-r from-techwing-gold to-techwing-orange text-black shadow-lg'
+                                : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        <BookOpen className="w-4 h-4" /> Exams
+                    </button>
+                </div>
+            </div>
+
+            {/* ── EXAMS SECTION ── */}
+            {activeSection === 'exams' && (
+                <div className="max-w-6xl mx-auto">
+                    <ExamAdminPanel />
+                </div>
+            )}
+
+            {/* ── INTERVIEWS SECTION ── */}
+            {activeSection === 'interviews' && (
             <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Stats Sidebar */}
@@ -227,8 +264,11 @@ const AdminDashboardPage = () => {
                     </div>
                 </div>
             </main>
+            )}
 
-            {/* Students Table */}
+            {/* Students Table - only in interviews tab */}
+            {activeSection === 'interviews' && (
+            <div>
             <main className="max-w-6xl mx-auto mt-8">
                 <div className="glass-panel p-6">
                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -285,7 +325,10 @@ const AdminDashboardPage = () => {
                     )}
                 </div>
             </main>
+            </div>)}
+
         </div>
+
     );
 };
 

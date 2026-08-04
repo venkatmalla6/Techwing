@@ -14,6 +14,7 @@ import AdminStudentProfilePage from './pages/admin/AdminStudentProfilePage';
 import FeedbackPage from './pages/FeedbackPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ErrorBoundary from './components/ErrorBoundary';
+import ExamPortalPage from './pages/exam/ExamPortalPage';
 
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated } = useAuth();
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/interview/hr" element={<ProtectedRoute><HrRoundPage /></ProtectedRoute>} />
                     <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
                     <Route path="/report" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
+                    <Route path="/exam" element={<ProtectedRoute><ExamPortalPage /></ProtectedRoute>} />
                     
                     {/* 404 Fallback */}
                     <Route path="*" element={<NotFoundPage />} />
