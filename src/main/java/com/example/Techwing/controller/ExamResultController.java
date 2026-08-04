@@ -14,10 +14,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/exam-results")
-@RequiredArgsConstructor
 public class ExamResultController {
 
     private final ExamResultService examResultService;
+
+    public ExamResultController(ExamResultService examResultService) {
+        this.examResultService = examResultService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse> getResults(@RequestParam(required = false) String rollNumber) {

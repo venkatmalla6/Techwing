@@ -6,11 +6,25 @@ import {
   getLocalResultsFallback, saveLocalResults
 } from '../utils/examUtils';
 
+// Helper to parse JSON strings from backend database
+function parseJsonFields(obj, fields) {
+  if (!obj) return obj;
+  fields.forEach(f => {
+    if (typeof obj[f] === 'string') {
+      try { obj[f] = JSON.parse(obj[f]); } catch (e) {}
+    }
+  });
+  return obj;
+}
+
+const parseExam = (e) => parseJsonFields(e, ['questions']);
+const parseResult = (r) => parseJsonFields(r, ['answers', 'violationLog', 'cameraCaptures']);
+
 // ─── EXAMS ────────────────────────────────────────────────────────────────────
 export async function getExams() {
   try {
     const res = await api.get('/exams');
-    const exams = res.data?.data || res.data || [];
+    const exams = (res.data?.data || res.data || []).map(parseExam);
     saveLocalExams(exams);
     return exams;
   } catch (e) {
@@ -22,7 +36,7 @@ export async function getExams() {
 export async function addExam(exam) {
   try {
     const res = await api.post('/exams', exam);
-    return { success: true, data: res.data?.data || res.data };
+    return { success: true, data: parseExam(res.data?.data || res.data) };
   } catch (e) {
     return { success: false, error: e.response?.data?.message || e.message };
   }
@@ -31,7 +45,7 @@ export async function addExam(exam) {
 export async function updateExam(id, exam) {
   try {
     const res = await api.put(`/exams/${id}`, exam);
-    return { success: true, data: res.data?.data || res.data };
+    return { success: true, data: parseExam(res.data?.data || res.data) };
   } catch (e) {
     return { success: false, error: e.response?.data?.message || e.message };
   }
@@ -52,7 +66,7 @@ export async function deleteExam(id) {
 export async function getResults() {
   try {
     const res = await api.get('/exam-results');
-    const results = res.data?.data || res.data || [];
+    const results = (res.data?.data || res.data || []).map(parseResult);
     saveLocalResults(results);
     return results;
   } catch (e) {
@@ -64,7 +78,7 @@ export async function getResults() {
 export async function getStudentResults(rollNumber) {
   try {
     const res = await api.get(`/exam-results?rollNumber=${encodeURIComponent(rollNumber)}`);
-    return res.data?.data || res.data || [];
+    return (res.data?.data || res.data || []).map(parseResult);
   } catch (e) {
     const all = getLocalResultsFallback();
     return all.filter(r => r.rollNumber === rollNumber);
@@ -74,7 +88,8 @@ export async function getStudentResults(rollNumber) {
 export async function checkActiveDraft(rollNumber, examId) {
   try {
     const res = await api.get(`/exam-results/draft?rollNumber=${encodeURIComponent(rollNumber)}&examId=${encodeURIComponent(examId)}`);
-    return res.data?.data || null;
+    const data = res.data?.data;
+    return data ? parseResult(data) : null;
   } catch (e) {
     return null;
   }
@@ -83,11 +98,13 @@ export async function checkActiveDraft(rollNumber, examId) {
 export async function addResult(result) {
   try {
     const res = await api.post('/exam-results', result);
+    const parsed = parseResult(res.data?.data || res.data);
+    
     // Also persist locally as fallback
     const local = getLocalResultsFallback().filter(r => r.id !== result.id);
-    local.push(result);
+    local.push(parsed);
     saveLocalResults(local);
-    return { success: true, data: res.data?.data || res.data };
+    return { success: true, data: parsed };
   } catch (e) {
     // Save locally even if backend fails
     const local = getLocalResultsFallback().filter(r => r.id !== result.id);

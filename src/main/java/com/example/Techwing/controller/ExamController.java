@@ -13,10 +13,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/exams")
-@RequiredArgsConstructor
 public class ExamController {
 
     private final ExamService examService;
+
+    public ExamController(ExamService examService) {
+        this.examService = examService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse> getAllExams() {

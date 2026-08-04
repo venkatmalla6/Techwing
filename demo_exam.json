@@ -1,0 +1,133 @@
+{
+  "title": "Full Stack Developer Assessment - Demo Exam",
+  "duration": 120,
+  "passingMarks": 40,
+  "shuffleQuestions": true,
+  "shuffleOptions": true,
+  "showResultToStudent": true,
+  "resumeWindow": 60,
+  "questions": [
+    {
+      "type": "mcq",
+      "questionText": "What is the time complexity of searching an element in a balanced Binary Search Tree?",
+      "marks": 2,
+      "options": ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
+      "correctOptionIndex": 2
+    },
+    {
+      "type": "mcq",
+      "questionText": "Which HTTP method is typically used to completely replace an existing resource?",
+      "marks": 2,
+      "options": ["POST", "PATCH", "PUT", "DELETE"],
+      "correctOptionIndex": 2
+    },
+    {
+      "type": "mcq",
+      "questionText": "In Java, which keyword is used to prevent a class from being subclassed?",
+      "marks": 2,
+      "options": ["static", "final", "abstract", "private"],
+      "correctOptionIndex": 1
+    },
+    {
+      "type": "mcq",
+      "questionText": "What does CSS stand for?",
+      "marks": 2,
+      "options": ["Cascading Style Sheets", "Computer Style Sheets", "Creative Style System", "Cascading Script Sheets"],
+      "correctOptionIndex": 0
+    },
+    {
+      "type": "mcq",
+      "questionText": "Which design pattern ensures only one instance of a class is created?",
+      "marks": 2,
+      "options": ["Factory", "Observer", "Singleton", "Decorator"],
+      "correctOptionIndex": 2
+    },
+    {
+      "type": "mcq",
+      "questionText": "In relational databases, what does ACID stand for?",
+      "marks": 2,
+      "options": ["Atomicity, Consistency, Isolation, Durability", "Accuracy, Completeness, Integrity, Durability", "Atomicity, Concurrency, Isolation, Durability", "Accuracy, Consistency, Isolation, Dependency"],
+      "correctOptionIndex": 0
+    },
+    {
+      "type": "mcq",
+      "questionText": "Which of the following is a hook introduced in React 16.8 to manage state in functional components?",
+      "marks": 2,
+      "options": ["useState", "componentDidMount", "useEffect", "useMemo"],
+      "correctOptionIndex": 0
+    },
+    {
+      "type": "mcq",
+      "questionText": "What is the default port number for a Spring Boot web application?",
+      "marks": 2,
+      "options": ["80", "8080", "3000", "5432"],
+      "correctOptionIndex": 1
+    },
+    {
+      "type": "mcq",
+      "questionText": "Which data structure is primarily used to implement Breadth-First Search (BFS)?",
+      "marks": 2,
+      "options": ["Stack", "Array", "Queue", "Tree"],
+      "correctOptionIndex": 2
+    },
+    {
+      "type": "mcq",
+      "questionText": "What does a '404' HTTP status code mean?",
+      "marks": 2,
+      "options": ["Internal Server Error", "Unauthorized", "Bad Request", "Not Found"],
+      "correctOptionIndex": 3
+    },
+    {
+      "type": "coding",
+      "questionText": "Write a Java program to calculate the factorial of a given positive integer N.\n\nInput: A single integer N (0 <= N <= 12).\nOutput: A single integer representing N!",
+      "marks": 10,
+      "codingLanguage": "java",
+      "codeTemplate": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int n = scanner.nextInt();\n        \n        // Write your code here\n        \n    }\n}",
+      "testCases": [
+        { "input": "5", "expectedOutput": "120", "isHidden": false },
+        { "input": "0", "expectedOutput": "1", "isHidden": false },
+        { "input": "6", "expectedOutput": "720", "isHidden": true },
+        { "input": "10", "expectedOutput": "3628800", "isHidden": true }
+      ]
+    },
+    {
+      "type": "coding",
+      "questionText": "Write a Java program to check if a given string is a palindrome. The comparison should be case-sensitive. Print 'true' if it is a palindrome, and 'false' otherwise.\n\nInput: A single string without spaces.\nOutput: 'true' or 'false'.",
+      "marks": 10,
+      "codingLanguage": "java",
+      "codeTemplate": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        String s = scanner.next();\n        \n        // Write your code here\n        \n    }\n}",
+      "testCases": [
+        { "input": "racecar", "expectedOutput": "true", "isHidden": false },
+        { "input": "hello", "expectedOutput": "false", "isHidden": false },
+        { "input": "Madam", "expectedOutput": "false", "isHidden": true },
+        { "input": "a", "expectedOutput": "true", "isHidden": true }
+      ]
+    },
+    {
+      "type": "coding",
+      "questionText": "Write a Java program to find the maximum element in an array of integers.\n\nInput format: The first line contains an integer N (the size of the array). The next line contains N space-separated integers.\nOutput format: Print the maximum integer.",
+      "marks": 15,
+      "codingLanguage": "java",
+      "codeTemplate": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int n = scanner.nextInt();\n        int[] arr = new int[n];\n        for (int i = 0; i < n; i++) {\n            arr[i] = scanner.nextInt();\n        }\n        \n        // Write your code here\n        \n    }\n}",
+      "testCases": [
+        { "input": "5\n1 4 2 9 3", "expectedOutput": "9", "isHidden": false },
+        { "input": "3\n-5 -2 -9", "expectedOutput": "-2", "isHidden": false },
+        { "input": "1\n42", "expectedOutput": "42", "isHidden": true },
+        { "input": "4\n10 10 10 10", "expectedOutput": "10", "isHidden": true }
+      ]
+    },
+    {
+      "type": "coding",
+      "questionText": "Write a Java program to print the Nth Fibonacci number. Assume the sequence starts with F(0) = 0 and F(1) = 1.\n\nInput: An integer N (0 <= N <= 30)\nOutput: The Nth Fibonacci number.",
+      "marks": 15,
+      "codingLanguage": "java",
+      "codeTemplate": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int n = scanner.nextInt();\n        \n        // Write your code here\n        \n    }\n}",
+      "testCases": [
+        { "input": "0", "expectedOutput": "0", "isHidden": false },
+        { "input": "5", "expectedOutput": "5", "isHidden": false },
+        { "input": "10", "expectedOutput": "55", "isHidden": true },
+        { "input": "20", "expectedOutput": "6765", "isHidden": true }
+      ]
+    }
+  ]
+}

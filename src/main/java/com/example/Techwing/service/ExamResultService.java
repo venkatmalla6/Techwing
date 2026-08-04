@@ -13,11 +13,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ExamResultService {
 
     private final ExamResultRepository examResultRepository;
     private final ObjectMapper objectMapper;
+
+    public ExamResultService(ExamResultRepository examResultRepository, ObjectMapper objectMapper) {
+        this.examResultRepository = examResultRepository;
+        this.objectMapper = objectMapper;
+    }
 
     public List<ExamResult> getAllResults() {
         return examResultRepository.findAll();

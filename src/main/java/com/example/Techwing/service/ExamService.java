@@ -11,11 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ExamService {
 
     private final ExamRepository examRepository;
     private final ObjectMapper objectMapper;
+
+    public ExamService(ExamRepository examRepository, ObjectMapper objectMapper) {
+        this.examRepository = examRepository;
+        this.objectMapper = objectMapper;
+    }
 
     public List<Exam> getAllExams() {
         return examRepository.findAll();
