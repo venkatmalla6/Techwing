@@ -4,6 +4,7 @@ import com.example.Techwing.models.InterviewSession;
 import com.example.Techwing.models.SessionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public interface InterviewSessionRepository extends JpaRepository<InterviewSessi
     Double findAverageOverallScore();
 
     @Query("SELECT COUNT(s) FROM InterviewSession s WHERE s.user.id = :userId AND s.status = 'COMPLETED'")
-    long countCompletedByUserId(Long userId);
+    long countCompletedByUserId(@Param("userId") Long userId);
 
     @Query("SELECT s FROM InterviewSession s LEFT JOIN FETCH s.track ORDER BY s.createdAt DESC")
     List<InterviewSession> findAllWithTrack();

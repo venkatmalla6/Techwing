@@ -22,20 +22,20 @@ public class ExamController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllExams() {
+    public ResponseEntity<ApiResponse<Object>> getAllExams() {
         List<Exam> exams = examService.getAllExams();
-        return ResponseEntity.ok(new ApiResponse(true, "Exams retrieved successfully", exams));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Exams retrieved successfully", exams));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getExamById(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Object>> getExamById(@PathVariable String id) {
         Optional<Exam> exam = examService.getExamById(id);
-        return exam.map(value -> ResponseEntity.ok(new ApiResponse(true, "Exam retrieved", value)))
-                .orElseGet(() -> ResponseEntity.status(404).body(new ApiResponse(false, "Exam not found", null)));
+        return exam.map(value -> ResponseEntity.ok(new ApiResponse<>(true, "Exam retrieved", value)))
+                .orElseGet(() -> ResponseEntity.status(404).body(new ApiResponse<>(false, "Exam not found", null)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createExam(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<ApiResponse<Object>> createExam(@RequestBody Map<String, Object> payload) {
         try {
             Exam exam = new Exam();
             exam.setId((String) payload.get("id"));
@@ -52,14 +52,14 @@ public class ExamController {
             Object questions = payload.get("questions");
             
             Exam savedExam = examService.createExam(exam, questions);
-            return ResponseEntity.ok(new ApiResponse(true, "Exam created successfully", savedExam));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exam created successfully", savedExam));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Failed to create exam: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to create exam: " + e.getMessage(), null));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateExam(@PathVariable String id, @RequestBody Map<String, Object> payload) {
+    public ResponseEntity<ApiResponse<Object>> updateExam(@PathVariable String id, @RequestBody Map<String, Object> payload) {
         try {
             Exam exam = new Exam();
             exam.setTitle((String) payload.get("title"));
@@ -75,19 +75,19 @@ public class ExamController {
             Object questions = payload.get("questions");
             
             Exam updatedExam = examService.updateExam(id, exam, questions);
-            return ResponseEntity.ok(new ApiResponse(true, "Exam updated successfully", updatedExam));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exam updated successfully", updatedExam));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Failed to update exam: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to update exam: " + e.getMessage(), null));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteExam(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Object>> deleteExam(@PathVariable String id) {
         try {
             examService.deleteExam(id);
-            return ResponseEntity.ok(new ApiResponse(true, "Exam deleted successfully", null));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exam deleted successfully", null));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Failed to delete exam: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to delete exam: " + e.getMessage(), null));
         }
     }
 }
