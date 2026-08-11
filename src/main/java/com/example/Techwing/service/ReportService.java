@@ -1,6 +1,5 @@
 package com.example.Techwing.service;
 
-import com.example.Techwing.models.InterviewReport;
 import com.example.Techwing.models.LearningRoadmap;
 import com.example.Techwing.payload.ReportResponse;
 import java.util.List;

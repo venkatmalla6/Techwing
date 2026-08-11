@@ -31,7 +31,6 @@ public class InterviewServiceImpl implements InterviewService {
     private final HRAnswerRepository hrAnswerRepository;
     private final UserRepository userRepository;
     private final InterviewConfigurationRepository configRepository;
-    private final ResumeRepository resumeRepository;
     private final ResumeAnalysisRepository resumeAnalysisRepository;
     private final AIClientService aiClientService;
     private final InterviewFeedbackRepository feedbackRepository;
@@ -189,29 +188,6 @@ public class InterviewServiceImpl implements InterviewService {
         return response;
     }
 
-    private InterviewStartResponse resumeTechnicalRound(InterviewSession session) {
-        List<TechnicalAnswer> pendingAnswers = technicalAnswerRepository.findBySessionIdAndTranscriptIsNullOrderByQuestionOrderAsc(session.getId());
-        
-        if (pendingAnswers.isEmpty()) {
-            throw new InterviewException("Technical round is already completed for this session.");
-        }
-
-        TechnicalAnswer nextAnswer = pendingAnswers.get(0);
-        TechnicalQuestion nextQ = nextAnswer.getQuestion();
-        
-        log.info("Resuming technical round for session: {}", session.getId());
-        return InterviewStartResponse.builder()
-                .sessionId(session.getId())
-                .totalQuestions(10)
-                .timeLimitMinutes(session.getConfig().getTechnicalTimeMinutes())
-                .questionId(nextQ.getId())
-                .questionOrder(nextAnswer.getQuestionOrder())
-                .questionText(nextQ.getQuestionText())
-                .category(nextQ.getCategory())
-                .difficulty(nextQ.getDifficulty().name())
-                .build();
-    }
-
     @Override
     public AnswerEvalResponse submitTechnicalAnswer(AnswerRequest request) {
         InterviewSession session = sessionRepository.findById(request.getSessionId())
@@ -252,8 +228,6 @@ public class InterviewServiceImpl implements InterviewService {
         answer.setAiFeedback(aiFeedback);
         technicalAnswerRepository.save(answer);
 
-        long answered = technicalAnswerRepository.findBySessionIdOrderByQuestionOrder(session.getId())
-                .stream().filter(a -> a.getTranscript() != null).count();
         // Infinite mode: always return true. Frontend timer will stop the interview.
         boolean hasNext = true;
 
@@ -272,10 +246,6 @@ public class InterviewServiceImpl implements InterviewService {
     public QuestionResponse getNextTechnicalQuestion(Long sessionId) {
         InterviewSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Session", "id", sessionId));
-
-        long answeredCount = technicalAnswerRepository.countBySessionId(sessionId) 
-                             - technicalAnswerRepository.findBySessionIdAndTranscriptIsNullOrderByQuestionOrderAsc(sessionId).size();
-        
         List<TechnicalAnswer> pendingAnswers = technicalAnswerRepository.findBySessionIdAndTranscriptIsNullOrderByQuestionOrderAsc(sessionId);
         
         if (pendingAnswers.isEmpty()) {

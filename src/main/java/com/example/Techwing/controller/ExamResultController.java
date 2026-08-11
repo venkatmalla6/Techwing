@@ -6,7 +6,14 @@ import com.example.Techwing.payload.DraftUpdateRequest;
 import com.example.Techwing.service.ExamResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -14,36 +21,33 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/exam-results")
+@RequiredArgsConstructor
 public class ExamResultController {
 
     private final ExamResultService examResultService;
 
-    public ExamResultController(ExamResultService examResultService) {
-        this.examResultService = examResultService;
-    }
-
     @GetMapping
-    public ResponseEntity<ApiResponse> getResults(@RequestParam(required = false) String rollNumber) {
+    public ResponseEntity<ApiResponse<List<ExamResult>>> getResults(@RequestParam(required = false) String rollNumber) {
         List<ExamResult> results;
         if (rollNumber != null && !rollNumber.isEmpty()) {
             results = examResultService.getResultsByRollNumber(rollNumber);
         } else {
             results = examResultService.getAllResults();
         }
-        return ResponseEntity.ok(new ApiResponse(true, "Results retrieved successfully", results));
+        return ResponseEntity.ok(ApiResponse.success("Results retrieved successfully", results));
     }
 
     @GetMapping("/draft")
-    public ResponseEntity<ApiResponse> getActiveDraft(
+    public ResponseEntity<ApiResponse<ExamResult>> getActiveDraft(
             @RequestParam String rollNumber, 
             @RequestParam String examId) {
         Optional<ExamResult> draft = examResultService.getActiveDraft(rollNumber, examId);
-        return draft.map(examResult -> ResponseEntity.ok(new ApiResponse(true, "Active draft found", examResult)))
-                .orElseGet(() -> ResponseEntity.ok(new ApiResponse(true, "No active draft", null)));
+        return draft.map(examResult -> ResponseEntity.ok(ApiResponse.success("Active draft found", examResult)))
+                .orElseGet(() -> ResponseEntity.ok(ApiResponse.success("No active draft", null)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> submitResult(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<ApiResponse<ExamResult>> submitResult(@RequestBody Map<String, Object> payload) {
         try {
             ExamResult result = new ExamResult();
             result.setId((String) payload.get("id"));
@@ -72,21 +76,21 @@ public class ExamResultController {
             Object cameraCaptures = payload.get("cameraCaptures");
             
             ExamResult savedResult = examResultService.saveResult(result, answers, violationLog, cameraCaptures);
-            return ResponseEntity.ok(new ApiResponse(true, "Result submitted successfully", savedResult));
+            return ResponseEntity.ok(ApiResponse.success("Result submitted successfully", savedResult));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Failed to submit result: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(ApiResponse.error("Failed to submit result: " + e.getMessage()));
         }
     }
 
     @PatchMapping("/{resultId}/draft")
-    public ResponseEntity<ApiResponse> updateDraft(
+    public ResponseEntity<ApiResponse<Void>> updateDraft(
             @PathVariable String resultId, 
             @RequestBody DraftUpdateRequest request) {
         try {
             examResultService.updateDraft(resultId, request);
-            return ResponseEntity.ok(new ApiResponse(true, "Draft updated successfully", null));
+            return ResponseEntity.ok(ApiResponse.success("Draft updated successfully", null));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Failed to update draft: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(ApiResponse.error("Failed to update draft: " + e.getMessage()));
         }
     }
 }

@@ -4,7 +4,6 @@ import com.example.Techwing.models.Exam;
 import com.example.Techwing.repository.ExamRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

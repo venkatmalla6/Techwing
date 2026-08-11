@@ -7,18 +7,15 @@ import com.example.Techwing.repository.*;
 import com.example.Techwing.service.AIClientService;
 import com.example.Techwing.service.ResumeService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class ResumeServiceImpl implements ResumeService {
@@ -27,11 +24,20 @@ public class ResumeServiceImpl implements ResumeService {
     private final ResumeAnalysisRepository resumeAnalysisRepository;
     private final UserRepository userRepository;
     private final AIClientService aiClientService;
-    private final ObjectMapper objectMapper;
+    private final ResumeService self;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    @org.springframework.context.annotation.Lazy
-    private ResumeService self;
+    public ResumeServiceImpl(
+            ResumeRepository resumeRepository,
+            ResumeAnalysisRepository resumeAnalysisRepository,
+            UserRepository userRepository,
+            AIClientService aiClientService,
+            @Lazy ResumeService self) {
+        this.resumeRepository = resumeRepository;
+        this.resumeAnalysisRepository = resumeAnalysisRepository;
+        this.userRepository = userRepository;
+        this.aiClientService = aiClientService;
+        this.self = self;
+    }
 
     @Override
     public Resume uploadResume(Long userId, MultipartFile file) {
