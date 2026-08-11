@@ -3,8 +3,8 @@ import { getExams, addExam, deleteExam, getResults } from '../../services/examSe
 import { parseCSVQuestions, downloadResultsCSV } from '../../utils/examUtils';
 import { showToast, showModal, showConfirm } from '../../utils/examNotifications';
 import {
-  BookOpen, Plus, Trash2, Download, Upload, ChevronDown, ChevronUp,
-  BarChart2, Eye, Search, RefreshCw, FileText, Code, AlignLeft, ToggleLeft, Loader2, X
+  BookOpen, Plus, Trash2, Download, Upload,
+  BarChart2, Eye, Search, RefreshCw, FileText, Loader2, X
 } from 'lucide-react';
 
 const QUESTION_TYPES = [

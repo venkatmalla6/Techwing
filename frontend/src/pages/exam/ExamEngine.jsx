@@ -9,7 +9,7 @@ import { transpileJavaToJS, extractMethodName, runTestCase } from '../../utils/j
 import { showModal, showToast, showConfirm } from '../../utils/examNotifications';
 import WarningOverlay from './WarningOverlay';
 import { Editor } from '@monaco-editor/react';
-import { ChevronLeft, ChevronRight, Send, Clock, Camera, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Send, Clock, AlertTriangle } from 'lucide-react';
 
 const MAX_VIOLATIONS = 8;
 
@@ -34,7 +34,6 @@ const ExamEngine = ({ exam, student, activeDraft, onFinished }) => {
 
   const [sandboxOutputs, setSandboxOutputs] = useState({});
   const [submissionFeedback, setSubmissionFeedback] = useState({});
-  const [splitPercent, setSplitPercent] = useState(50);
 
   const activeQ = questions[activeQuestionIdx];
   const activeAnswer = activeQ ? (answers[activeQ.id] || '') : '';

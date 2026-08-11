@@ -8,6 +8,7 @@ import { useVAD } from '../hooks/useVAD';
 import * as interviewService from '../services/interviewService';
 import { useInterview } from '../context/InterviewContext';
 import Swal from 'sweetalert2';
+import { Users, Loader2, Mic, Clock } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 // ─── Status Display Messages ──────────────────────────────────────────────────

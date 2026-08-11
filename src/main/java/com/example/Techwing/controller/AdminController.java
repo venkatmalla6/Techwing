@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -49,7 +50,7 @@ public class AdminController {
         InterviewConfiguration config = InterviewConfiguration.builder()
                 .track(savedTrack)
                 .technicalQuestionCount(10)
-                .technicalTimeMinutes(5) // Setting 5 minutes timer as requested
+                .technicalTimeMinutes(5)
                 .hrQuestionCount(5)
                 .hrTimeMinutes(5)
                 .isActive(true)
@@ -89,7 +90,7 @@ public class AdminController {
                 
         InterviewConfiguration config = configRepository.findByTrackIdAndIsActiveTrue(id)
                 .orElseGet(() -> {
-                    InterviewConfiguration newConfig = InterviewConfiguration.builder()
+                    return InterviewConfiguration.builder()
                             .track(track)
                             .technicalQuestionCount(10)
                             .technicalTimeMinutes(5)
@@ -97,7 +98,6 @@ public class AdminController {
                             .hrTimeMinutes(5)
                             .isActive(true)
                             .build();
-                    return newConfig;
                 });
         if (updated.getTechnicalTimeMinutes() != null) {
             config.setTechnicalTimeMinutes(updated.getTechnicalTimeMinutes());
@@ -111,40 +111,81 @@ public class AdminController {
         if (updated.getHrQuestionCount() != null) {
             config.setHrQuestionCount(updated.getHrQuestionCount());
         }
-        return ResponseEntity.ok(ApiResponse.success("Configuration updated", configRepository.save(config)));
+        return ResponseEntity.ok(ApiResponse.success("Config updated", configRepository.save(config)));
     }
 
     @DeleteMapping("/tracks/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> deleteTrack(@PathVariable Long id) {
-        TechnologyTrack t = trackRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Track", "id", id));
-        t.setIsActive(false);
-        trackRepository.save(t);
-        return ResponseEntity.ok(ApiResponse.success("Track deactivated", null));
+    public ResponseEntity<ApiResponse<Void>> deleteTrack(@PathVariable Long id) {
+        trackRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Track deleted", null));
     }
 
-    @GetMapping("/questions/{trackId}")
-    public ResponseEntity<ApiResponse<List<TechnicalQuestion>>> getQuestions(@PathVariable Long trackId) {
+    // ─── QUESTIONS ──────────────────────────────────────────────────────────
+
+    @GetMapping("/tracks/{trackId}/questions")
+    public ResponseEntity<ApiResponse<List<TechnicalQuestion>>> getQuestionsByTrack(@PathVariable Long trackId) {
         return ResponseEntity.ok(ApiResponse.success(questionRepository.findByTrackIdAndIsActiveTrue(trackId)));
     }
 
-    @PostMapping("/questions")
-    public ResponseEntity<ApiResponse<TechnicalQuestion>> addQuestion(@RequestBody TechnicalQuestion q) {
-        q.setIsActive(true);
+    @PostMapping("/tracks/{trackId}/questions")
+    public ResponseEntity<ApiResponse<TechnicalQuestion>> addQuestion(
+            @PathVariable Long trackId, @RequestBody TechnicalQuestion question) {
+        TechnologyTrack track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new ResourceNotFoundException("TechnologyTrack", "id", trackId));
+        question.setTrack(track);
+        question.setIsActive(true);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Question added", questionRepository.save(q)));
+                .body(ApiResponse.success("Question added", questionRepository.save(question)));
+    }
+
+    @PutMapping("/questions/{id}")
+    public ResponseEntity<ApiResponse<TechnicalQuestion>> updateQuestion(
+            @PathVariable Long id, @RequestBody TechnicalQuestion questionDetails) {
+        TechnicalQuestion question = questionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TechnicalQuestion", "id", id));
+        question.setQuestionText(questionDetails.getQuestionText());
+        question.setCategory(questionDetails.getCategory());
+        question.setDifficulty(questionDetails.getDifficulty());
+        question.setExpectedAnswer(questionDetails.getExpectedAnswer());
+        return ResponseEntity.ok(ApiResponse.success("Question updated", questionRepository.save(question)));
     }
 
     @DeleteMapping("/questions/{id}")
-    public ResponseEntity<ApiResponse<String>> removeQuestion(@PathVariable Long id) {
-        TechnicalQuestion q = questionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Question", "id", id));
-        q.setIsActive(false);
-        questionRepository.save(q);
-        return ResponseEntity.ok(ApiResponse.success("Question removed", null));
+    public ResponseEntity<ApiResponse<Void>> deleteQuestion(@PathVariable Long id) {
+        questionRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Question deleted", null));
     }
 
+    @PutMapping("/questions/bulk-delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> bulkDeleteQuestions(@RequestBody List<Long> ids) {
+        questionRepository.deleteAllById(ids);
+        return ResponseEntity.ok(ApiResponse.success("Questions deleted successfully", null));
+    }
+
+    // ─── CONFIGURATION ──────────────────────────────────────────────────────
+
+    @GetMapping("/tracks/{trackId}/config")
+    public ResponseEntity<ApiResponse<InterviewConfiguration>> getConfigByTrack(@PathVariable Long trackId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                configRepository.findByTrackId(trackId)
+                        .orElseThrow(() -> new ResourceNotFoundException("InterviewConfiguration", "trackId", trackId))));
+    }
+
+    @PutMapping("/tracks/{trackId}/config")
+    public ResponseEntity<ApiResponse<InterviewConfiguration>> updateConfig(
+            @PathVariable Long trackId, @RequestBody InterviewConfiguration configDetails) {
+        InterviewConfiguration config = configRepository.findByTrackId(trackId)
+                .orElseThrow(() -> new ResourceNotFoundException("InterviewConfiguration", "trackId", trackId));
+        config.setTechnicalQuestionCount(configDetails.getTechnicalQuestionCount());
+        config.setTechnicalTimeMinutes(configDetails.getTechnicalTimeMinutes());
+        config.setHrQuestionCount(configDetails.getHrQuestionCount());
+        config.setHrTimeMinutes(configDetails.getHrTimeMinutes());
+        return ResponseEntity.ok(ApiResponse.success("Config updated", configRepository.save(config)));
+    }
+
+    // ─── HR QUESTIONS & STUDENTS ─────────────────────────────────────────────
 
     @GetMapping("/hr-questions")
     public ResponseEntity<ApiResponse<List<HRQuestion>>> getHRQuestions() {
@@ -160,8 +201,7 @@ public class AdminController {
 
     @GetMapping("/students")
     public ResponseEntity<ApiResponse<List<User>>> getStudents() {
-        return ResponseEntity.ok(ApiResponse.success(
-                userRepository.findAll().stream().filter(u -> u.getRole() == Role.STUDENT).toList()));
+        return ResponseEntity.ok(ApiResponse.success(userRepository.findByRole(Role.STUDENT)));
     }
 
     @GetMapping("/students/{userId}/sessions")
@@ -171,21 +211,45 @@ public class AdminController {
 
     @GetMapping("/students/performance")
     public ResponseEntity<ApiResponse<List<com.example.Techwing.payload.StudentPerformanceDTO>>> getAllStudentsPerformance() {
-        List<User> students = userRepository.findAll().stream().filter(u -> u.getRole() == Role.STUDENT).toList();
-        List<com.example.Techwing.payload.StudentPerformanceDTO> dtos = students.stream().map(this::mapToPerformanceDTO).toList();
+        List<User> students = userRepository.findByRole(Role.STUDENT);
+        List<InterviewSession> allSessions = sessionRepository.findAllWithTrack();
+
+        Map<Long, InterviewSession> latestSessions = allSessions.stream()
+                .collect(Collectors.toMap(
+                        s -> s.getUser().getId(),
+                        s -> s,
+                        (existing, replacement) -> existing
+                ));
+
+        List<com.example.Techwing.payload.StudentPerformanceDTO> dtos = students.stream()
+                .map(user -> buildStudentPerformanceDTO(user, latestSessions.get(user.getId())))
+                .toList();
+
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
     @GetMapping("/tracks/{trackId}/students/performance")
     public ResponseEntity<ApiResponse<List<com.example.Techwing.payload.StudentPerformanceDTO>>> getTrackStudentsPerformance(@PathVariable Long trackId) {
-        List<User> students = userRepository.findAll().stream()
-                .filter(u -> u.getRole() == Role.STUDENT && u.getTrack() != null && u.getTrack().getId().equals(trackId))
+        List<User> students = userRepository.findByRole(Role.STUDENT).stream()
+                .filter(u -> u.getTrack() != null && u.getTrack().getId().equals(trackId))
                 .toList();
-        List<com.example.Techwing.payload.StudentPerformanceDTO> dtos = students.stream().map(this::mapToPerformanceDTO).toList();
+
+        List<InterviewSession> allSessions = sessionRepository.findAllWithTrack();
+        Map<Long, InterviewSession> latestSessions = allSessions.stream()
+                .collect(Collectors.toMap(
+                        s -> s.getUser().getId(),
+                        s -> s,
+                        (existing, replacement) -> existing
+                ));
+
+        List<com.example.Techwing.payload.StudentPerformanceDTO> dtos = students.stream()
+                .map(user -> buildStudentPerformanceDTO(user, latestSessions.get(user.getId())))
+                .toList();
+
         return ResponseEntity.ok(ApiResponse.success(dtos));
     }
 
-    private com.example.Techwing.payload.StudentPerformanceDTO mapToPerformanceDTO(User user) {
+    private com.example.Techwing.payload.StudentPerformanceDTO buildStudentPerformanceDTO(User user, InterviewSession session) {
         com.example.Techwing.payload.StudentPerformanceDTO dto = com.example.Techwing.payload.StudentPerformanceDTO.builder()
                 .userId(user.getId())
                 .name(user.getName())
@@ -195,12 +259,14 @@ public class AdminController {
                 .branch(user.getBranch())
                 .build();
 
-        sessionRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId()).ifPresent(session -> {
+        if (session != null) {
             dto.setLatestSessionId(session.getId());
-            dto.setTrackName(session.getTrack().getName());
+            if (session.getTrack() != null) {
+                dto.setTrackName(session.getTrack().getName());
+            }
             dto.setOverallScore(session.getOverallScore());
             dto.setInterviewDate(session.getCreatedAt());
-        });
+        }
         return dto;
     }
 

@@ -1,0 +1,2 @@
+@echo off
+"C:\apache-maven\apache-maven-3.9.9\bin\mvn.cmd" %*

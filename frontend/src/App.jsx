@@ -16,23 +16,42 @@ import NotFoundPage from './pages/NotFoundPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import ExamPortalPage from './pages/exam/ExamPortalPage';
 
+const getStoredUser = () => {
+    try {
+        const stored = localStorage.getItem("user");
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+        return null;
+    }
+};
+
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated } = useAuth();
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    const token = localStorage.getItem("token");
+    return (isAuthenticated || token) ? children : <Navigate to="/login" replace />;
 };
 
 const GuestRoute = ({ children }) => {
     const { isAuthenticated, user } = useAuth();
-    if (isAuthenticated) {
-        return user?.role === 'ADMIN' ? <Navigate to="/admin" /> : <Navigate to="/dashboard" />;
+    const token = localStorage.getItem("token");
+    const currentUser = user || getStoredUser();
+
+    if (isAuthenticated || token) {
+        const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'TRAINER';
+        return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
     }
     return children;
 };
 
 const AdminRoute = ({ children }) => {
     const { isAuthenticated, user } = useAuth();
-    if (!isAuthenticated) return <Navigate to="/login" />;
-    if (user?.role !== 'ADMIN') return <Navigate to="/dashboard" />;
+    const token = localStorage.getItem("token");
+    const currentUser = user || getStoredUser();
+
+    if (!isAuthenticated && !token) return <Navigate to="/login" replace />;
+    
+    const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'TRAINER';
+    if (!isAdmin) return <Navigate to="/dashboard" replace />;
     return children;
 };
 

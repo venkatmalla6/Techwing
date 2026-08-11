@@ -20,4 +20,7 @@ public interface InterviewSessionRepository extends JpaRepository<InterviewSessi
 
     @Query("SELECT COUNT(s) FROM InterviewSession s WHERE s.user.id = :userId AND s.status = 'COMPLETED'")
     long countCompletedByUserId(Long userId);
+
+    @Query("SELECT s FROM InterviewSession s LEFT JOIN FETCH s.track ORDER BY s.createdAt DESC")
+    List<InterviewSession> findAllWithTrack();
 }

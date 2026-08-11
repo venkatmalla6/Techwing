@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(userInfo));
         setUser(userInfo);
         setIsAuthenticated(true);
+        return userInfo;
     };
 
     const login = async (data) => {
@@ -46,8 +47,9 @@ export const AuthProvider = ({ children }) => {
         const authData = res.data?.data;
         if (authData && authData.accessToken) {
             localStorage.removeItem("resumeUploaded"); // Clear previous session resume state
-            saveAuth(authData);
-            navigate(authData.role === 'ADMIN' ? "/admin" : "/dashboard");
+            const userInfo = saveAuth(authData);
+            const targetPath = (userInfo.role === 'ADMIN' || userInfo.role === 'TRAINER') ? "/admin" : "/dashboard";
+            navigate(targetPath, { replace: true });
         } else {
             throw new Error(res.data?.message || "Login failed");
         }
@@ -58,8 +60,9 @@ export const AuthProvider = ({ children }) => {
         const authData = res.data?.data;
         if (authData && authData.accessToken) {
             localStorage.removeItem("resumeUploaded"); // Clear previous session resume state
-            saveAuth(authData);
-            navigate(authData.role === 'ADMIN' ? "/admin" : "/dashboard");
+            const userInfo = saveAuth(authData);
+            const targetPath = (userInfo.role === 'ADMIN' || userInfo.role === 'TRAINER') ? "/admin" : "/dashboard";
+            navigate(targetPath, { replace: true });
         } else {
             throw new Error(res.data?.message || "Registration failed");
         }

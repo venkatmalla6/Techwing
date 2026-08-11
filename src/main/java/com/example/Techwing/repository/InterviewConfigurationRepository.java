@@ -8,4 +8,5 @@ import java.util.Optional;
 @Repository
 public interface InterviewConfigurationRepository extends JpaRepository<InterviewConfiguration, Long> {
     Optional<InterviewConfiguration> findByTrackIdAndIsActiveTrue(Long trackId);
+    Optional<InterviewConfiguration> findByTrackId(Long trackId);
 }
