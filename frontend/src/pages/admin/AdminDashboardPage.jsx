@@ -180,12 +180,19 @@ const AdminDashboardPage = () => {
                         </div>
                     </div>
                     
-                    <div className="glass-panel p-6 flex items-center gap-4">
-                        <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+                    <div 
+                        onClick={() => {
+                            document.getElementById('students-section')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="glass-panel p-6 flex items-center gap-4 cursor-pointer hover:border-blue-500/40 hover:bg-white/10 transition-all group"
+                    >
+                        <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500 group-hover:scale-105 transition-transform">
                             <Users className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-gray-400 text-sm">Registered Students</p>
+                            <p className="text-gray-400 text-sm flex items-center gap-1">
+                                Registered Students <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" />
+                            </p>
                             <p className="text-2xl font-bold">{students.length}</p>
                         </div>
                     </div>
@@ -268,11 +275,12 @@ const AdminDashboardPage = () => {
 
             {/* Students Table - only in interviews tab */}
             {activeSection === 'interviews' && (
-            <div>
+            <div id="students-section">
             <main className="max-w-6xl mx-auto mt-8">
                 <div className="glass-panel p-6">
                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                         <Users className="w-5 h-5 text-techwing-gold" /> All Registered Students
+                        <span className="text-xs font-normal text-gray-400 ml-auto">Click any student to view detailed profile</span>
                     </h2>
                     
                     {students.length === 0 ? (
@@ -286,13 +294,18 @@ const AdminDashboardPage = () => {
                                         <th className="py-3 px-4 font-medium">Branch & Year</th>
                                         <th className="py-3 px-4 font-medium">Track</th>
                                         <th className="py-3 px-4 font-medium text-right">Performance Score</th>
+                                        <th className="py-3 px-4 font-medium text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {students.map(student => (
-                                        <tr key={student.userId} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                        <tr 
+                                            key={student.userId} 
+                                            onClick={() => navigate(`/admin/students/${student.userId}`)}
+                                            className="border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer group"
+                                        >
                                             <td className="py-3 px-4">
-                                                <div className="font-medium text-white">{student.name}</div>
+                                                <div className="font-medium text-white group-hover:text-techwing-gold transition-colors">{student.name}</div>
                                                 <div className="text-xs text-gray-400">{student.pinNumber || 'No PIN'}</div>
                                             </td>
                                             <td className="py-3 px-4">
@@ -316,6 +329,11 @@ const AdminDashboardPage = () => {
                                                 ) : (
                                                     <span className="text-gray-500 text-sm">Pending</span>
                                                 )}
+                                            </td>
+                                            <td className="py-3 px-4 text-right">
+                                                <div className="inline-flex items-center gap-1 text-xs font-semibold text-techwing-gold group-hover:underline">
+                                                    View Profile <ChevronRight className="w-3.5 h-3.5" />
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
